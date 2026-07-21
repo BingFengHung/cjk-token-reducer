@@ -111,6 +111,7 @@ The following AI Coding Agents have been verified to work with cjk-token-reducer
 Please refer to the guide for your chosen tool:
 
 - Claude Code: [hooks/claude.md](hooks/claude.md)
+- GitHub Copilot: [hooks/copilot.md](hooks/copilot.md)
 
 ### 2. Configuration (Optional)
 Create a `.cjk-token.json` file to customize behavior.
