@@ -106,68 +106,11 @@ export PATH="$HOME/.local/bin:$PATH"
 
 ## Setup
 
-### 1. Configure Claude Code Hook
-Add the following to your Claude Code settings file (usually `~/.claude/settings.json`).
-This hook intercepts your prompt before submission.
+### 1. Configure for AI Conding Agents
+The following AI Coding Agents have been verified to work with cjk-token-reducer.
+Please refer to the guide for your chosen tool:
 
-```json
-{
-  "hooks": {
-    "UserPromptSubmit": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "cjk-token-reducer"
-          }
-        ]
-      }
-    ]
-  }
-}
-```
-
-The tool accepts JSON input `{"prompt": "..."}` on stdin and outputs modified JSON.
-
-#### How It Works
-The hook intercepts at `UserPromptSubmit`, translating CJK prompts before Claude processes them:
-
-```
-┌──────────────────────────────────────────────────────────────┐
-│                      Claude Code Session                     │
-├──────────────────────────────────────────────────────────────┤
-│  SessionStart ─────► User types prompt (CJK)                 │
-│                           │                                  │
-│                           ▼                                  │
-│              ┌────────────────────────────┐                  │
-│              │    UserPromptSubmit        │                  │
-│              │  ┌──────────────────────┐  │                  │
-│              │  │  cjk-token-reducer   │  │ ◄─ Intercept     │
-│              │  │  - Detect CJK        │  │                  │
-│              │  │  - Check cache       │  │                  │
-│              │  │  - Translate → EN    │  │                  │
-│              │  │  - Preserve code     │  │                  │
-│              │  └──────────────────────┘  │                  │
-│              └────────────────────────────┘                  │
-│                           │                                  │
-│                           ▼                                  │
-│                   Claude processes (English prompt)          │
-│                           │                                  │
-│                   ┌───────┴───────┐                          │
-│                   ▼               ▼                          │
-│              PreToolUse      (No tools)                      │
-│                   │               │                          │
-│                   ▼               │                          │
-│              Tool executes        │                          │
-│                   │               │                          │
-│                   ▼               │                          │
-│              PostToolUse          │                          │
-│                   │               │                          │
-│                   └───────┬───────┘                          │
-│                           ▼                                  │
-│                        Stop                                  │
-└──────────────────────────────────────────────────────────────┘
-```
+- Claude Code: [hooks/claude.md](hooks/claude.md)
 
 ### 2. Configuration (Optional)
 Create a `.cjk-token.json` file to customize behavior.
