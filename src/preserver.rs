@@ -813,7 +813,7 @@ pub fn extract_and_preserve_with_config(text: &str, config: &PreserveConfig) -> 
 
         // Sort by start position descending to process in reverse order
         // This preserves byte indices during replacement
-        terms.sort_by(|a, b| b.start.cmp(&a.start));
+        terms.sort_by_key(|term| std::cmp::Reverse(term.start));
 
         for term in terms {
             let placeholder = format!("\u{FEFF}cjkengterm{index}\u{FEFF}");

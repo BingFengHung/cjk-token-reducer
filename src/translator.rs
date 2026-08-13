@@ -201,11 +201,10 @@ fn find_split_point_single_pass(text: &str) -> usize {
                 }
             }
             // Space (word boundary)
-            ' ' | '\t' => {
-                if best_space.is_none() {
+            ' ' | '\t'
+                if best_space.is_none() => {
                     best_space = Some(byte_pos);
                 }
-            }
             _ => {}
         }
 
