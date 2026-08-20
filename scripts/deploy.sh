@@ -111,18 +111,37 @@ install_binary()
     local binary_path="target/release/cjk-token-reducer"
 
     if [ ! -f "$binary_path" ]; then
-        print_error "Binary not found: $binary_path"
-        echo ""
-        echo "Please build the binary first:"
-        echo "  cargo build --release"
-        echo "  # On macOS with NLP support: cargo build --release --features macos-nlp"
-        echo ""
-        exit 1
+        if [ -f "${binary_path}.exe" ]; then
+            binary_path="${binary_path}.exe"
+        elif [ -f "cjk-token-reducer" ]; then
+            binary_path="cjk-token-reducer"
+        elif [ -f "cjk-token-reducer.exe" ]; then
+            binary_path="cjk-token-reducer.exe"
+        elif [ -f "artifacts/cjk-token-reducer-linux-x86_64" ]; then
+            binary_path="artifacts/cjk-token-reducer-linux-x86_64"
+        elif [ -f "artifacts/cjk-token-reducer-macos-aarch64" ]; then
+            binary_path="artifacts/cjk-token-reducer-macos-aarch64"
+        elif [ -f "artifacts/cjk-token-reducer-windows-x86_64.exe" ]; then
+            binary_path="artifacts/cjk-token-reducer-windows-x86_64.exe"
+        else
+            print_error "Binary not found: $binary_path"
+            echo ""
+            echo "Please build the binary first:"
+            echo "  cargo build --release"
+            echo "  # On macOS with NLP support: cargo build --release --features macos-nlp"
+            echo ""
+            exit 1
+        fi
     fi
 
-    print_info "Installing binary to: $install_dir/cjk-token-reducer"
-    cp "$binary_path" "$install_dir/cjk-token-reducer"
-    chmod +x "$install_dir/cjk-token-reducer"
+    local target_name="cjk-token-reducer"
+    if [[ "$binary_path" == *.exe ]]; then
+        target_name="cjk-token-reducer.exe"
+    fi
+
+    print_info "Installing binary to: $install_dir/$target_name"
+    cp "$binary_path" "$install_dir/$target_name"
+    chmod +x "$install_dir/$target_name" 2>/dev/null || true
 }
 
 # Verify binary is accessible after installation
@@ -130,7 +149,7 @@ verify_installation()
 {
     local install_dir="$1"
 
-    if [ ! -x "$install_dir/cjk-token-reducer" ]; then
+    if [ ! -f "$install_dir/cjk-token-reducer" ] && [ ! -f "$install_dir/cjk-token-reducer.exe" ]; then
         print_error "Binary installation failed or is not executable"
         exit 1
     fi
@@ -296,15 +315,9 @@ except Exception as e:
 remove_binary()
 {
     local install_dir="$1"
-    local binary_path="$install_dir/cjk-token-reducer"
 
-    if [ ! -f "$binary_path" ]; then
-        print_warn "Binary not found at: $binary_path"
-        return 0
-    fi
-
-    print_info "Removing binary: $binary_path"
-    rm -f "$binary_path"
+    print_info "Removing binary from: $install_dir"
+    rm -f "$install_dir/cjk-token-reducer" "$install_dir/cjk-token-reducer.exe"
     print_info "Binary removed successfully"
 }
 
@@ -413,6 +426,8 @@ check_status()
     # Check if binary exists
     if [ -f "$install_dir/cjk-token-reducer" ]; then
         print_info "Binary is installed at: $install_dir/cjk-token-reducer"
+    elif [ -f "$install_dir/cjk-token-reducer.exe" ]; then
+        print_info "Binary is installed at: $install_dir/cjk-token-reducer.exe"
     else
         print_warn "Binary is not installed"
     fi

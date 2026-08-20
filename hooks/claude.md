@@ -1,8 +1,11 @@
 # Claude Code
 
 ## Configure Claude Code hook
-Add the following to your Claude Code settings file (usually `~/.claude/settings.json`).
-This hook intercepts your prompt before submission.
+Add the following to your Claude Code settings file:
+- **Linux / macOS**: `~/.claude/settings.json`
+- **Windows**: `%USERPROFILE%\.claude\settings.json` (or `C:\Users\<username>\.claude\settings.json`)
+
+This hook intercepts your prompt before submission:
 
 ```json
 {

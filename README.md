@@ -71,7 +71,35 @@ Mitigation strategies:
 
 ## Installation
 
-### Option 1: Cargo Install (Recommended)
+### Option 1: Download Pre-built Binary (GitHub Releases)
+Download the precompiled binary for your operating system from [Releases](https://github.com/jserv/cjk-token-reducer/releases):
+
+- **Windows (x86_64)**: `cjk-token-reducer-windows-x86_64.exe`
+- **Linux (x86_64)**: `cjk-token-reducer-linux-x86_64`
+- **macOS (Apple Silicon)**: `cjk-token-reducer-macos-aarch64`
+
+#### One-click Setup with Deployment Scripts:
+
+**Windows (PowerShell):**
+```powershell
+# Download binary
+Invoke-WebRequest -Uri "https://github.com/jserv/cjk-token-reducer/releases/download/nightly/cjk-token-reducer-windows-x86_64.exe" -OutFile "cjk-token-reducer.exe"
+
+# Install binary and configure Claude Code hook automatically
+powershell -ExecutionPolicy Bypass -File .\scripts\deploy.ps1 install
+```
+
+**Linux / macOS (Bash):**
+```shell
+# Download binary
+curl -Lo cjk-token-reducer https://github.com/jserv/cjk-token-reducer/releases/download/nightly/cjk-token-reducer-linux-x86_64
+chmod +x cjk-token-reducer
+
+# Install binary and configure Claude Code hook automatically
+./scripts/deploy.sh install
+```
+
+### Option 2: Cargo Install
 ```shell
 # Linux/Windows
 cargo install --git https://github.com/jserv/cjk-token-reducer
@@ -80,29 +108,25 @@ cargo install --git https://github.com/jserv/cjk-token-reducer
 cargo install --git https://github.com/jserv/cjk-token-reducer --features macos-nlp
 ```
 
-### Option 2: Build from Source
+### Option 3: Build from Source
 ```shell
 git clone https://github.com/jserv/cjk-token-reducer
 cd cjk-token-reducer
 
-# Linux/Windows
+# Build
 cargo build --release
 
-# macOS (with NLP support)
-cargo build --release --features macos-nlp
+# On Windows (PowerShell):
+powershell -ExecutionPolicy Bypass -File .\scripts\deploy.ps1 install
 
-# Install (builds if needed, installs binary, configures Claude hook)
+# On Linux / macOS:
 make install
-
-# Uninstall (removes binary and hook)
-make uninstall
+# or: ./scripts/deploy.sh install
 ```
 
-If you prefer manual installation:
-```shell
-cp target/release/cjk-token-reducer ~/.local/bin/
-export PATH="$HOME/.local/bin:$PATH"
-```
+To uninstall:
+- Windows: `powershell -ExecutionPolicy Bypass -File .\scripts\deploy.ps1 uninstall`
+- Linux / macOS: `make uninstall` or `./scripts/deploy.sh uninstall`
 
 ## Setup
 

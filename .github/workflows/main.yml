@@ -5,6 +5,7 @@ on:
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
+  workflow_dispatch:
 
 env:
   CARGO_TERM_COLOR: always
@@ -27,6 +28,9 @@ jobs:
           - os: macos-14
             target: aarch64-apple-darwin
             features: "macos-nlp"
+          - os: windows-latest
+            target: x86_64-pc-windows-msvc
+            features: ""
 
     runs-on: ${{ matrix.os }}
 
@@ -53,10 +57,10 @@ jobs:
     - name: Clippy
       run: cargo clippy --target ${{ matrix.target }} ${{ matrix.features && format('--features {0}', matrix.features) || '' }} -- -D warnings
 
-  # Build release binaries (only on main branch push)
+  # Build release binaries (on main branch push or manual trigger)
   build-release:
     needs: verify
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    if: (github.event_name == 'push' && github.ref == 'refs/heads/main') || github.event_name == 'workflow_dispatch'
 
     strategy:
       matrix:
@@ -64,11 +68,18 @@ jobs:
           - os: ubuntu-24.04
             target: x86_64-unknown-linux-gnu
             artifact_name: cjk-token-reducer-linux-x86_64
+            binary_ext: ""
             features: ""
           - os: macos-14
             target: aarch64-apple-darwin
             artifact_name: cjk-token-reducer-macos-aarch64
+            binary_ext: ""
             features: "macos-nlp"
+          - os: windows-latest
+            target: x86_64-pc-windows-msvc
+            artifact_name: cjk-token-reducer-windows-x86_64.exe
+            binary_ext: ".exe"
+            features: ""
 
     runs-on: ${{ matrix.os }}
 
@@ -90,10 +101,11 @@ jobs:
       run: cargo build --release --verbose --target ${{ matrix.target }} ${{ matrix.features && format('--features {0}', matrix.features) || '' }}
 
     - name: Prepare artifact
+      shell: bash
       run: |
         mkdir -p artifacts
-        cp target/${{ matrix.target }}/release/${{ env.BINARY_NAME }} artifacts/${{ matrix.artifact_name }}
-        chmod +x artifacts/${{ matrix.artifact_name }}
+        cp target/${{ matrix.target }}/release/${{ env.BINARY_NAME }}${{ matrix.binary_ext }} artifacts/${{ matrix.artifact_name }}
+        chmod +x artifacts/${{ matrix.artifact_name }} 2>/dev/null || true
 
     - name: Upload artifact
       uses: actions/upload-artifact@v6
@@ -157,10 +169,16 @@ jobs:
         **Built:** $(date -u '+%Y-%m-%d %H:%M:%S UTC')
 
         ## Binaries
+        - \`cjk-token-reducer-windows-x86_64.exe\` - Windows (x86_64)
         - \`cjk-token-reducer-linux-x86_64\` - Ubuntu 24.04 (x86_64)
         - \`cjk-token-reducer-macos-aarch64\` - macOS (Apple Silicon)
 
         ## Installation
+        \`\`\`powershell
+        # Windows (PowerShell)
+        Invoke-WebRequest -Uri https://github.com/${{ github.repository }}/releases/download/nightly/cjk-token-reducer-windows-x86_64.exe -OutFile cjk-token-reducer.exe
+        \`\`\`
+
         \`\`\`bash
         # Linux x86_64
         curl -Lo cjk-token-reducer https://github.com/${{ github.repository }}/releases/download/nightly/cjk-token-reducer-linux-x86_64
