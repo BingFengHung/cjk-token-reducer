@@ -1,4 +1,7 @@
 # cjk-token-reducer
+
+[English](README.md) | [繁體中文](README.zh-TW.md)
+
 Reduce Claude Code token usage by 35-50% when using CJK languages.
 
 ## The Problem
