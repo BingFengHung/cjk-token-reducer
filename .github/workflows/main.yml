@@ -197,17 +197,17 @@ jobs:
 
         # Create release if it doesn't exist (first run only)
         if ! gh release view "$NIGHTLY_TAG" &>/dev/null; then
-          echo "Creating nightly release..."
-          gh release create "$NIGHTLY_TAG" --prerelease --title "Nightly" --notes "Initializing..."
+          echo "Creating release..."
+          gh release create "$NIGHTLY_TAG" --latest --title "v${{ steps.meta.outputs.version }}" --notes "Initializing..."
         fi
 
         # Upload artifacts and checksums, replacing any existing assets
         echo "Uploading artifacts..."
         gh release upload "$NIGHTLY_TAG" artifacts/* --clobber
 
-        # Update release metadata
+        # Update release metadata as Latest release
         echo "Updating release metadata..."
         gh release edit "$NIGHTLY_TAG" \
-          --prerelease \
-          --title "Nightly (${{ steps.meta.outputs.date }}-${{ steps.meta.outputs.short_sha }})" \
+          --latest \
+          --title "v${{ steps.meta.outputs.version }} (${{ steps.meta.outputs.date }}-${{ steps.meta.outputs.short_sha }})" \
           --notes "$RELEASE_NOTES"
