@@ -157,12 +157,12 @@ jobs:
         git tag -f nightly ${{ github.sha }}
         git push origin nightly -f
 
-    - name: Update nightly pre-release
+    - name: Update release
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
         NIGHTLY_TAG="nightly"
-        RELEASE_NOTES="Rolling pre-release build from main branch.
+        RELEASE_NOTES="Rolling build from main branch.
 
         **Version:** ${{ steps.meta.outputs.version }}
         **Commit:** \`${{ steps.meta.outputs.short_sha }}\`
@@ -195,19 +195,12 @@ jobs:
         \`\`\`
         "
 
-        # Create release if it doesn't exist (first run only)
-        if ! gh release view "$NIGHTLY_TAG" &>/dev/null; then
-          echo "Creating release..."
-          gh release create "$NIGHTLY_TAG" --latest --title "v${{ steps.meta.outputs.version }}" --notes "Initializing..."
-        fi
+        # Delete existing release if it exists to ensure a clean state
+        gh release delete "$NIGHTLY_TAG" --yes || true
 
-        # Upload artifacts and checksums, replacing any existing assets
-        echo "Uploading artifacts..."
-        gh release upload "$NIGHTLY_TAG" artifacts/* --clobber
-
-        # Update release metadata as Latest release
-        echo "Updating release metadata..."
-        gh release edit "$NIGHTLY_TAG" \
+        # Create fresh Latest release with all artifacts attached
+        echo "Creating latest release..."
+        gh release create "$NIGHTLY_TAG" artifacts/* \
           --latest \
           --title "v${{ steps.meta.outputs.version }} (${{ steps.meta.outputs.date }}-${{ steps.meta.outputs.short_sha }})" \
           --notes "$RELEASE_NOTES"
